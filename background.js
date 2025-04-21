@@ -2,7 +2,7 @@
 chrome.runtime.onInstalled.addListener(function() {
   // Set default settings when the extension is first installed
   chrome.storage.sync.get({
-    bufferTime: 30,
+    bufferTime: 10,
     enableNotifications: true,
     autoDismissNotifications: false,
     notificationColor: '#000000',

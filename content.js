@@ -1,5 +1,5 @@
 // Global variables
-let bufferTime = 30; // Default 30 seconds
+let bufferTime = 10; // Default 10 seconds
 let enableNotifications = true;
 let autoDismissNotifications = false; // Default is persistent notifications
 let notificationColor = '#000000'; // Default notification color
@@ -97,7 +97,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     
     // Show notification about updated settings
     if (enableNotifications) {
-      showNotification(`NoFlake settings updated. Buffer time: ${bufferTime}s`);
+      showNotification('Settings updated');
     }
     
     // If notifications are disabled, clean up
@@ -176,7 +176,7 @@ function setupVideoListeners() {
       setupBufferCheck();
       
       if (enableNotifications && autoEnable) {
-        showNotification('NoFlake is active on this video');
+        showNotification('NoFlake enabled');
       }
     }
   }, 500);
@@ -207,8 +207,8 @@ function setupBufferCheck() {
         // Only show notification if not already showing completion message
         if (enableNotifications && 
             (!notificationElement || 
-             !notificationElement.textContent.includes('Buffer complete'))) {
-          showNotification('Buffer complete. You can now pause the video', 'rgba(76, 175, 80, 0.85)');
+             !notificationElement.textContent !== 'Pause enabled')) {
+          showNotification('Pause enabled', 'rgba(76, 175, 80, 0.85)');
         }
         
         // Stop countdown if it's running
@@ -261,7 +261,7 @@ function handleVideoPlay() {
     bufferActive = true;
     
     if (enableNotifications) {
-      showNotification(`Video started. Cannot pause for ${bufferTime} seconds`);
+      showNotification(`Pause locked: ${bufferTime}s`);
     }
   }
 }
@@ -331,8 +331,8 @@ function startCountdown(seconds) {
     if (!notificationElement) return;
   }
   
-  // Create the notification with a span for the countdown
-  notificationElement.innerHTML = `Cannot pause yet! <span id="noflake-countdown">${seconds}</span> second${seconds === 1 ? '' : 's'} remaining`;
+  // Create the notification with a span for the countdown - Apple-style minimal text
+  notificationElement.innerHTML = `Pause in: <span id="noflake-countdown">${seconds}</span>`;
   notificationElement.style.backgroundColor = hexToRgba('#FF4444', notificationOpacity);
   notificationElement.style.display = 'block';
   
@@ -347,16 +347,10 @@ function startCountdown(seconds) {
       // Buffer time reached during countdown, show success message
       stopCountdown();
       bufferActive = false;
-      showNotification('Buffer complete. You can now pause the video', 'rgba(76, 175, 80, 0.85)');
+      showNotification('Pause enabled', 'rgba(76, 175, 80, 0.85)');
     } else if (countdownSpan) {
       // Update just the span element with the new seconds value
       countdownSpan.textContent = seconds;
-      
-      // Update the text after the span too (for plural handling)
-      const textNode = countdownSpan.nextSibling;
-      if (textNode) {
-        textNode.nodeValue = ` second${seconds === 1 ? '' : 's'} remaining`;
-      }
     }
   }, 1000);
 }
@@ -396,29 +390,35 @@ function createNotificationElement() {
   
   notificationElement = document.createElement('div');
   notificationElement.style.position = 'absolute';
-  notificationElement.style.top = '10px';
+  notificationElement.style.top = '15px';
   notificationElement.style.left = '50%';
   notificationElement.style.transform = 'translateX(-50%)';
   notificationElement.style.backgroundColor = hexToRgba(notificationColor, notificationOpacity);
   notificationElement.style.color = 'white';
-  notificationElement.style.padding = '10px 20px';
-  notificationElement.style.borderRadius = '4px';
+  notificationElement.style.padding = '8px 16px';
+  notificationElement.style.borderRadius = '20px'; // More rounded, Apple-style
   notificationElement.style.zIndex = '9999';
-  notificationElement.style.fontFamily = 'YouTube Sans, sans-serif';
-  notificationElement.style.fontWeight = 'bold';
-  notificationElement.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+  notificationElement.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  notificationElement.style.fontWeight = '500'; // Medium weight instead of bold
+  notificationElement.style.fontSize = '14px';
+  notificationElement.style.letterSpacing = '0.2px'; // Slight letter spacing for readability
+  notificationElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; // Softer shadow
   notificationElement.style.display = 'none';
   notificationElement.style.pointerEvents = 'auto'; // Allow interaction for dismiss button
+  notificationElement.style.textAlign = 'center';
+  notificationElement.style.minWidth = '100px';
   
   // Create a small CSS style for the close button
   const style = document.createElement('style');
   style.textContent = `
     .noflake-dismiss {
       display: inline-block;
-      font-size: 18px;
-      line-height: 14px;
+      font-size: 16px;
+      line-height: 16px;
+      margin-left: 8px;
       vertical-align: middle;
       opacity: 0.7;
+      cursor: pointer;
     }
     .noflake-dismiss:hover {
       opacity: 1;
@@ -458,10 +458,10 @@ function showNotification(message, color = null) {
     activeNotificationTimeout = null;
   }
   
-  // Add dismiss button if not a pause notification
+  // Add dismiss button if not a pause countdown notification
   let dismissButton = '';
-  if (!message.includes('Cannot pause yet') && !message.includes('Video started')) {
-    dismissButton = '<span class="noflake-dismiss" style="margin-left: 10px; cursor: pointer; padding: 0 5px;">×</span>';
+  if (message !== 'Pause enabled' && !message.includes('Pause in:') && !message.includes('Pause locked')) {
+    dismissButton = '<span class="noflake-dismiss">×</span>';
     notificationElement.innerHTML = message + dismissButton;
     
     // Add event listener to dismiss button
