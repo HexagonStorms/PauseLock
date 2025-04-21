@@ -2,6 +2,7 @@
 let bufferTime = 10; // Default 10 seconds
 let enableNotifications = true;
 let autoDismissNotifications = false; // Default is persistent notifications
+let notificationDraggable = true; // Default is draggable notifications
 let notificationColor = '#000000'; // Default notification color
 let notificationOpacity = 75; // Default opacity (as a percentage)
 let autoEnable = true;
@@ -34,6 +35,7 @@ chrome.storage.sync.get({
   bufferTime: 30,
   enableNotifications: true,
   autoDismissNotifications: false,
+  notificationDraggable: true,
   notificationColor: '#000000',
   notificationOpacity: 75,
   autoEnable: true,
@@ -43,6 +45,7 @@ chrome.storage.sync.get({
   bufferTime = items.bufferTime;
   enableNotifications = items.enableNotifications;
   autoDismissNotifications = items.autoDismissNotifications;
+  notificationDraggable = items.notificationDraggable;
   notificationColor = items.notificationColor;
   notificationOpacity = items.notificationOpacity;
   autoEnable = items.autoEnable;
@@ -58,11 +61,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === 'settingsUpdated') {
     // Store previous buffer time for comparison
     const prevBufferTime = bufferTime;
+    const prevDraggable = notificationDraggable;
     
     // Update all settings
     bufferTime = request.settings.bufferTime;
     enableNotifications = request.settings.enableNotifications;
     autoDismissNotifications = request.settings.autoDismissNotifications;
+    notificationDraggable = request.settings.notificationDraggable;
     notificationColor = request.settings.notificationColor;
     notificationOpacity = request.settings.notificationOpacity;
     autoEnable = request.settings.autoEnable;
@@ -72,6 +77,28 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     // Update notification style if it exists
     if (notificationElement) {
       notificationElement.style.backgroundColor = hexToRgba(notificationColor, notificationOpacity);
+      
+      // Update cursor style based on draggable setting
+      notificationElement.style.cursor = notificationDraggable ? 'move' : 'default';
+      
+      // If draggable setting changed, we need to recreate the notification
+      if (prevDraggable !== notificationDraggable && notificationElement) {
+        // Remember current notification properties
+        const wasVisible = notificationElement.style.display === 'block';
+        const message = notificationElement.textContent || notificationElement.innerText;
+        
+        // Remove old notification and create a new one
+        if (notificationElement.parentElement) {
+          notificationElement.parentElement.removeChild(notificationElement);
+        }
+        notificationElement = null;
+        createNotificationElement();
+        
+        // Restore visibility if needed
+        if (wasVisible && message) {
+          showNotification(message);
+        }
+      }
     }
     
     // If buffer time changed and a countdown is active, update it
@@ -225,8 +252,21 @@ function setupVideoResizeHandler() {
     if (notificationElement && notificationElement.parentElement !== document.querySelector('.html5-video-container')) {
       const videoContainer = document.querySelector('.html5-video-container') || document.querySelector('.html5-main-video');
       if (videoContainer && videoContainer !== notificationElement.parentElement) {
+        // Store current position before reattaching
+        let currentPosition = {
+          top: notificationElement.style.top,
+          left: notificationElement.style.left,
+          transform: notificationElement.style.transform
+        };
+        
+        // Reattach notification
         videoContainer.style.position = 'relative';
         videoContainer.appendChild(notificationElement);
+        
+        // Restore position
+        notificationElement.style.top = currentPosition.top;
+        notificationElement.style.left = currentPosition.left;
+        notificationElement.style.transform = currentPosition.transform;
       }
     }
   });
@@ -407,8 +447,9 @@ function createNotificationElement() {
   notificationElement.style.pointerEvents = 'auto'; // Allow interaction for dismiss button
   notificationElement.style.textAlign = 'center';
   notificationElement.style.minWidth = '100px';
+  notificationElement.style.cursor = notificationDraggable ? 'move' : 'default'; // Cursor based on setting
   
-  // Create a small CSS style for the close button
+  // Create a small CSS style for the close button and drag functionality
   const style = document.createElement('style');
   style.textContent = `
     .noflake-dismiss {
@@ -433,6 +474,146 @@ function createNotificationElement() {
     videoContainer.appendChild(notificationElement);
   } else {
     document.body.appendChild(notificationElement);
+  }
+  
+  // Add drag functionality
+  makeDraggable(notificationElement);
+}
+
+// Make an element draggable
+function makeDraggable(element) {
+  let isDragging = false;
+  let offsetX, offsetY;
+  let startLeft, startTop;
+  
+  // Variables to store position without transform
+  let posX = 0;
+  let posY = 15; // Default top position
+  
+  // Add mouse event listeners
+  element.addEventListener('mousedown', startDrag);
+  element.addEventListener('touchstart', startDragTouch, { passive: false });
+  
+  function startDrag(e) {
+    // Skip if dragging is disabled or clicking on the dismiss button
+    if (!notificationDraggable || e.target.classList.contains('noflake-dismiss')) return;
+    
+    isDragging = true;
+    
+    // Get current position (accounting for the transform)
+    const rect = element.getBoundingClientRect();
+    const containerRect = element.parentElement.getBoundingClientRect();
+    
+    // Calculate offset from mouse position to element corner
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    
+    // If this is the first drag, remove the centering transform and set explicit position
+    if (element.style.transform.includes('translateX(-50%)')) {
+      element.style.transform = '';
+      element.style.left = rect.left - containerRect.left + 'px';
+      posX = rect.left - containerRect.left;
+      element.style.top = rect.top - containerRect.top + 'px';
+      posY = rect.top - containerRect.top;
+    }
+    
+    // Prevent default browser actions and text selection
+    e.preventDefault();
+    
+    // Add move and end listeners to document (not just the element)
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+  }
+  
+  function startDragTouch(e) {
+    // Skip if dragging is disabled or touching the dismiss button
+    if (!notificationDraggable || e.target.classList.contains('noflake-dismiss')) return;
+    
+    isDragging = true;
+    
+    // Get current position
+    const rect = element.getBoundingClientRect();
+    const containerRect = element.parentElement.getBoundingClientRect();
+    
+    // Calculate offset from touch position to element corner
+    offsetX = e.touches[0].clientX - rect.left;
+    offsetY = e.touches[0].clientY - rect.top;
+    
+    // If this is the first drag, remove the centering transform and set explicit position
+    if (element.style.transform.includes('translateX(-50%)')) {
+      element.style.transform = '';
+      element.style.left = rect.left - containerRect.left + 'px';
+      posX = rect.left - containerRect.left;
+      element.style.top = rect.top - containerRect.top + 'px';
+      posY = rect.top - containerRect.top;
+    }
+    
+    // Prevent default browser actions (like scrolling)
+    e.preventDefault();
+    
+    // Add move and end listeners to document
+    document.addEventListener('touchmove', dragTouch, { passive: false });
+    document.addEventListener('touchend', stopDragTouch);
+  }
+  
+  function drag(e) {
+    if (!isDragging) return;
+    
+    const containerRect = element.parentElement.getBoundingClientRect();
+    
+    // Calculate new position within container bounds
+    let newX = e.clientX - offsetX - containerRect.left;
+    let newY = e.clientY - offsetY - containerRect.top;
+    
+    // Apply bounds checking to keep notification within container
+    newX = Math.max(0, Math.min(newX, containerRect.width - element.offsetWidth));
+    newY = Math.max(0, Math.min(newY, containerRect.height - element.offsetHeight));
+    
+    // Update position
+    element.style.left = newX + 'px';
+    element.style.top = newY + 'px';
+    
+    // Store position without transform for future reference
+    posX = newX;
+    posY = newY;
+    
+    e.preventDefault();
+  }
+  
+  function dragTouch(e) {
+    if (!isDragging) return;
+    
+    const containerRect = element.parentElement.getBoundingClientRect();
+    
+    // Calculate new position
+    let newX = e.touches[0].clientX - offsetX - containerRect.left;
+    let newY = e.touches[0].clientY - offsetY - containerRect.top;
+    
+    // Apply bounds checking
+    newX = Math.max(0, Math.min(newX, containerRect.width - element.offsetWidth));
+    newY = Math.max(0, Math.min(newY, containerRect.height - element.offsetHeight));
+    
+    // Update position
+    element.style.left = newX + 'px';
+    element.style.top = newY + 'px';
+    
+    // Store position without transform
+    posX = newX;
+    posY = newY;
+    
+    e.preventDefault();
+  }
+  
+  function stopDrag() {
+    isDragging = false;
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('mouseup', stopDrag);
+  }
+  
+  function stopDragTouch() {
+    isDragging = false;
+    document.removeEventListener('touchmove', dragTouch);
+    document.removeEventListener('touchend', stopDragTouch);
   }
 }
 
