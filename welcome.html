@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Welcome to NoFlake!</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h1 {
+      color: #d00;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 15px;
+    }
+    .tagline {
+      font-size: 18px;
+      color: #555;
+      font-style: italic;
+    }
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #d00;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+    ul {
+      padding-left: 25px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    .feature {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .feature-icon {
+      flex: 0 0 40px;
+      font-size: 24px;
+      color: #d00;
+      text-align: center;
+    }
+    .feature-text {
+      flex: 1;
+      padding-left: 15px;
+    }
+    .cta {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #d00;
+      color: white;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #b00;
+    }
+    .credits {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 30px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Welcome to NoFlake!</h1>
+    <div class="tagline">The YouTube Commitment Buffer that keeps you watching</div>
+  </div>
+  
+  <div class="section">
+    <h2>What is NoFlake?</h2>
+    <p>NoFlake is a Chrome extension that helps you commit to watching YouTube videos by adding a buffer time during which you cannot pause after starting a video. It's perfect for content creators, podcast enthusiasts, or anyone who wants to reduce the habit of stopping videos midway.</p>
+  </div>
+  
+  <div class="section">
+    <h2>Key Features</h2>
+    
+    <div class="feature">
+      <div class="feature-icon">⏱️</div>
+      <div class="feature-text">
+        <strong>Customizable Buffer Time</strong> - Set how long you must watch before pausing (1-3600 seconds)
+      </div>
+    </div>
+    
+    <div class="feature">
+      <div class="feature-icon">📢</div>
+      <div class="feature-text">
+        <strong>Friendly Notifications</strong> - See how much time remains before you can pause
+      </div>
+    </div>
+    
+    <div class="feature">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-text">
+        <strong>Smart Activation</strong> - Option to only enable on videos longer than 5 minutes
+      </div>
+    </div>
+    
+    <div class="feature">
+      <div class="feature-icon">📺</div>
+      <div class="feature-text">
+        <strong>Ad Awareness</strong> - Option to not count ad time toward your buffer requirement
+      </div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>How to Use</h2>
+    <ol>
+      <li>Click the NoFlake icon in your Chrome toolbar to open the settings</li>
+      <li>Set your desired buffer time (in seconds)</li>
+      <li>Customize other settings according to your preferences</li>
+      <li>Visit YouTube and start watching videos!</li>
+    </ol>
+    <p>When you start a video, the buffer timer activates. If you try to pause before the buffer time ends, the video will automatically resume playing.</p>
+  </div>
+  
+  <div class="cta">
+    <a href="popup.html" class="button">Configure Your Settings</a>
+  </div>
+  
+  <div class="credits">
+    <p>Built by suggestion for the H3 Podcast by Dan & Ethan!</p>
+    <p>Created with ❤️ for content creators and their dedicated fans</p>
+  </div>
+</body>
+</html>

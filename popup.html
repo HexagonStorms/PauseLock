@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NoFlake Settings</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      width: 300px;
+      margin: 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .header img {
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      color: #d00;
+    }
+    .setting-group {
+      margin-bottom: 15px;
+      padding: 10px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .checkbox-container input {
+      margin-right: 8px;
+    }
+    button {
+      background-color: #d00;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #b00;
+    }
+    .status {
+      margin-top: 10px;
+      text-align: center;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>NoFlake - YouTube Commitment Buffer</h1>
+  </div>
+  
+  <div class="setting-group">
+    <label for="bufferTime">Minimum Watch Time (seconds):</label>
+    <input type="number" id="bufferTime" min="1" max="3600" value="30">
+  </div>
+  
+  <div class="setting-group">
+    <label>Settings:</label>
+    <div class="checkbox-container">
+      <input type="checkbox" id="enableNotifications" checked>
+      <label for="enableNotifications">Show notifications</label>
+    </div>
+    <div class="checkbox-container">
+      <input type="checkbox" id="autoEnable" checked>
+      <label for="autoEnable">Auto-enable on YouTube</label>
+    </div>
+    <div class="checkbox-container">
+      <input type="checkbox" id="skipAds">
+      <label for="skipAds">Don't count ad time in buffer</label>
+    </div>
+    <div class="checkbox-container">
+      <input type="checkbox" id="onlyOnLongVideos">
+      <label for="onlyOnLongVideos">Only enable on videos > 5 minutes</label>
+    </div>
+  </div>
+  
+  <button id="saveButton">Save Settings</button>
+  <div id="status" class="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
