@@ -86,11 +86,29 @@
   </div>
   
   <div class="setting-group">
-    <label>Settings:</label>
+    <label>Notification Settings:</label>
     <div class="checkbox-container">
       <input type="checkbox" id="enableNotifications" checked>
       <label for="enableNotifications">Show notifications</label>
     </div>
+    <div class="checkbox-container">
+      <input type="checkbox" id="autoDismissNotifications">
+      <label for="autoDismissNotifications">Auto-dismiss notifications</label>
+    </div>
+    
+    <div style="margin-top: 15px;">
+      <label for="notificationColor">Notification Color:</label>
+      <input type="color" id="notificationColor" value="#000000" style="width: 50px; vertical-align: middle;">
+    </div>
+    
+    <div style="margin-top: 10px;">
+      <label for="notificationOpacity">Opacity: <span id="opacityValue">75%</span></label>
+      <input type="range" id="notificationOpacity" min="10" max="100" value="75" style="width: 100%; margin-top: 5px;">
+    </div>
+  </div>
+  
+  <div class="setting-group">
+    <label>Behavior Settings:</label>
     <div class="checkbox-container">
       <input type="checkbox" id="autoEnable" checked>
       <label for="autoEnable">Auto-enable on YouTube</label>

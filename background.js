@@ -4,6 +4,9 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.sync.get({
     bufferTime: 30,
     enableNotifications: true,
+    autoDismissNotifications: false,
+    notificationColor: '#000000',
+    notificationOpacity: 75,
     autoEnable: true,
     skipAds: false,
     onlyOnLongVideos: false
@@ -13,6 +16,9 @@ chrome.runtime.onInstalled.addListener(function() {
       chrome.storage.sync.set({
         bufferTime: 30,
         enableNotifications: true,
+        autoDismissNotifications: false,
+        notificationColor: '#000000',
+        notificationOpacity: 75,
         autoEnable: true,
         skipAds: false,
         onlyOnLongVideos: false
