@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     autoDismissNotifications: false,
     notificationColor: '#000000',
     notificationOpacity: 75,
-    notificationDraggable: true,
     autoEnable: true,
     skipAds: false,
     onlyOnLongVideos: false,
@@ -16,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('bufferTime').value = items.bufferTime;
     document.getElementById('enableNotifications').checked = items.enableNotifications;
     document.getElementById('autoDismissNotifications').checked = items.autoDismissNotifications;
-    document.getElementById('notificationDraggable').checked = items.notificationDraggable;
     document.getElementById('notificationColor').value = items.notificationColor;
     document.getElementById('notificationOpacity').value = items.notificationOpacity;
     document.getElementById('opacityValue').textContent = items.notificationOpacity + '%';
@@ -37,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const bufferTime = parseInt(document.getElementById('bufferTime').value, 10);
     const enableNotifications = document.getElementById('enableNotifications').checked;
     const autoDismissNotifications = document.getElementById('autoDismissNotifications').checked;
-    const notificationDraggable = document.getElementById('notificationDraggable').checked;
     const notificationColor = document.getElementById('notificationColor').value;
     const notificationOpacity = parseInt(document.getElementById('notificationOpacity').value, 10);
     const autoEnable = document.getElementById('autoEnable').checked;
@@ -57,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
       bufferTime: bufferTime,
       enableNotifications: enableNotifications,
       autoDismissNotifications: autoDismissNotifications,
-      notificationDraggable: notificationDraggable,
       notificationColor: notificationColor,
       notificationOpacity: notificationOpacity,
       autoEnable: autoEnable,
@@ -76,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
             bufferTime: bufferTime,
             enableNotifications: enableNotifications,
             autoDismissNotifications: autoDismissNotifications,
-            notificationDraggable: notificationDraggable,
             notificationColor: notificationColor,
             notificationOpacity: notificationOpacity,
             autoEnable: autoEnable,

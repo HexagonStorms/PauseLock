@@ -2,7 +2,6 @@
 let bufferTime = 10; // Default 10 seconds
 let enableNotifications = true;
 let autoDismissNotifications = false; // Default is persistent notifications
-let notificationDraggable = true; // Default is draggable notifications
 let notificationColor = '#000000'; // Default notification color
 let notificationOpacity = 75; // Default opacity (as a percentage)
 let autoEnable = true;
@@ -37,7 +36,6 @@ chrome.storage.sync.get({
   bufferTime: 30,
   enableNotifications: true,
   autoDismissNotifications: false,
-  notificationDraggable: true,
   notificationColor: '#000000',
   notificationOpacity: 75,
   autoEnable: true,
@@ -49,7 +47,6 @@ chrome.storage.sync.get({
   bufferTime = items.bufferTime;
   enableNotifications = items.enableNotifications;
   autoDismissNotifications = items.autoDismissNotifications;
-  notificationDraggable = items.notificationDraggable;
   notificationColor = items.notificationColor;
   notificationOpacity = items.notificationOpacity;
   autoEnable = items.autoEnable;
@@ -67,13 +64,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === 'settingsUpdated') {
     // Store previous buffer time for comparison
     const prevBufferTime = bufferTime;
-    const prevDraggable = notificationDraggable;
 
     // Update all settings
     bufferTime = request.settings.bufferTime;
     enableNotifications = request.settings.enableNotifications;
     autoDismissNotifications = request.settings.autoDismissNotifications;
-    notificationDraggable = request.settings.notificationDraggable;
     notificationColor = request.settings.notificationColor;
     notificationOpacity = request.settings.notificationOpacity;
     autoEnable = request.settings.autoEnable;
@@ -81,32 +76,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     onlyOnLongVideos = request.settings.onlyOnLongVideos;
     pauseEnabledMessage = request.settings.pauseEnabledMessage;
     pauseLockedMessage = request.settings.pauseLockedMessage;
-    
+
     // Update notification style if it exists
     if (notificationElement) {
       notificationElement.style.backgroundColor = hexToRgba(notificationColor, notificationOpacity);
-      
-      // Update cursor style based on draggable setting
-      notificationElement.style.cursor = notificationDraggable ? 'move' : 'default';
-      
-      // If draggable setting changed, we need to recreate the notification
-      if (prevDraggable !== notificationDraggable && notificationElement) {
-        // Remember current notification properties
-        const wasVisible = notificationElement.style.display === 'block';
-        const message = notificationElement.textContent || notificationElement.innerText;
-        
-        // Remove old notification and create a new one
-        if (notificationElement.parentElement) {
-          notificationElement.parentElement.removeChild(notificationElement);
-        }
-        notificationElement = null;
-        createNotificationElement();
-        
-        // Restore visibility if needed
-        if (wasVisible && message) {
-          showNotification(message);
-        }
-      }
     }
     
     // If buffer time changed and a countdown is active, update it
@@ -119,6 +92,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       // If new time is ≤ 0, complete the buffer
       if (newTimeRemaining <= 0 && bufferActive) {
         stopCountdown();
+        stopBufferCountdown();
         bufferActive = false;
         if (enableNotifications) {
           showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
@@ -126,7 +100,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       }
       // Otherwise restart the countdown with the new time
       else if (bufferActive) {
-        startCountdown(newTimeRemaining);
+        // If this was triggered by pause attempt, use the pause countdown
+        if (countdownInterval) {
+          startCountdown(newTimeRemaining);
+        }
+        // Otherwise update the continuous buffer countdown
+        else {
+          startBufferCountdown(bufferTime);
+        }
       }
     }
     
@@ -238,16 +219,17 @@ function setupBufferCheck() {
       // If buffer time has been reached, update state
       if (elapsedTime >= bufferTime) {
         bufferActive = false;
-        
+
         // Only show notification if not already showing completion message
         if (enableNotifications &&
             (!notificationElement ||
              !notificationElement.textContent !== pauseEnabledMessage)) {
           showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
         }
-        
-        // Stop countdown if it's running
+
+        // Stop any running countdowns
         stopCountdown();
+        stopBufferCountdown();
       }
     }
   }, 1000);
@@ -309,7 +291,8 @@ function handleVideoPlay() {
     bufferActive = true;
     
     if (enableNotifications) {
-      showNotification(`${pauseLockedMessage}: ${bufferTime}s`);
+      // Start a continuous countdown display
+      startBufferCountdown(bufferTime);
     }
   }
 }
@@ -317,6 +300,7 @@ function handleVideoPlay() {
 // Variables to track notification state
 let lastPauseAttemptTime = 0;
 let countdownInterval = null;
+let bufferCountdownInterval = null; // For the continuous buffer countdown
 let countdownElement = null;
 
 function handleVideoPause() {
@@ -352,10 +336,11 @@ function handleVideoPause() {
       return;
     }
     
-    // If we've passed the buffer time, allow the pause and stop any countdown
+    // If we've passed the buffer time, allow the pause and stop all countdowns
     bufferActive = false;
     stopCountdown();
-    
+    stopBufferCountdown();
+
     if (enableNotifications) {
       showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
     }
@@ -411,11 +396,67 @@ function stopCountdown() {
   }
 }
 
+// Function to display a continuously updating countdown for the buffer time
+function startBufferCountdown(totalSeconds) {
+  // Clear any existing buffer countdown
+  stopBufferCountdown();
+
+  // Create notification element if needed
+  if (!notificationElement) {
+    createNotificationElement();
+  }
+
+  // Make sure notification is connected to DOM
+  if (!notificationElement || !notificationElement.isConnected) {
+    notificationElement = null;
+    createNotificationElement();
+    if (!notificationElement) return;
+  }
+
+  // Initial display of countdown
+  notificationElement.innerHTML = `${pauseLockedMessage}: <span id="buffer-countdown">${totalSeconds}</span>s`;
+  notificationElement.style.backgroundColor = hexToRgba('#FF4444', notificationOpacity);
+  notificationElement.style.display = 'block';
+
+  // Get the span element for updating
+  const countdownSpan = notificationElement.querySelector('#buffer-countdown');
+  let secondsRemaining = totalSeconds;
+
+  // Update the countdown every second
+  bufferCountdownInterval = setInterval(() => {
+    // Calculate remaining time based on actual elapsed time
+    const currentTime = Date.now() / 1000;
+    const elapsedTime = currentTime - playStartTime;
+    secondsRemaining = Math.max(0, Math.ceil(totalSeconds - elapsedTime));
+
+    if (secondsRemaining <= 0 || !bufferActive) {
+      // Buffer time completed
+      stopBufferCountdown();
+      if (bufferActive) {
+        bufferActive = false;
+        showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
+      }
+    } else if (countdownSpan) {
+      // Update the displayed seconds
+      countdownSpan.textContent = secondsRemaining;
+    }
+  }, 1000);
+}
+
+// Function to stop the buffer countdown
+function stopBufferCountdown() {
+  if (bufferCountdownInterval) {
+    clearInterval(bufferCountdownInterval);
+    bufferCountdownInterval = null;
+  }
+}
+
 function resetBufferState() {
   playStartTime = 0;
   bufferActive = false;
   stopCountdown();
-  
+  stopBufferCountdown();
+
   // Clear buffer check interval
   if (bufferCheckInterval) {
     clearInterval(bufferCheckInterval);
@@ -438,7 +479,7 @@ function createNotificationElement() {
   
   notificationElement = document.createElement('div');
   notificationElement.style.position = 'absolute';
-  notificationElement.style.top = '15px';
+  notificationElement.style.top = '15px'; // Default top position
   notificationElement.style.left = '50%';
   notificationElement.style.transform = 'translateX(-50%)';
   notificationElement.style.backgroundColor = hexToRgba(notificationColor, notificationOpacity);
@@ -455,7 +496,6 @@ function createNotificationElement() {
   notificationElement.style.pointerEvents = 'auto'; // Allow interaction for dismiss button
   notificationElement.style.textAlign = 'center';
   notificationElement.style.minWidth = '100px';
-  notificationElement.style.cursor = notificationDraggable ? 'move' : 'default'; // Cursor based on setting
   
   // Create a small CSS style for the close button and drag functionality
   const style = document.createElement('style');
@@ -484,146 +524,8 @@ function createNotificationElement() {
     document.body.appendChild(notificationElement);
   }
   
-  // Add drag functionality
-  makeDraggable(notificationElement);
-}
+  }
 
-// Make an element draggable
-function makeDraggable(element) {
-  let isDragging = false;
-  let offsetX, offsetY;
-  let startLeft, startTop;
-  
-  // Variables to store position without transform
-  let posX = 0;
-  let posY = 15; // Default top position
-  
-  // Add mouse event listeners
-  element.addEventListener('mousedown', startDrag);
-  element.addEventListener('touchstart', startDragTouch, { passive: false });
-  
-  function startDrag(e) {
-    // Skip if dragging is disabled or clicking on the dismiss button
-    if (!notificationDraggable || e.target.classList.contains('noflake-dismiss')) return;
-    
-    isDragging = true;
-    
-    // Get current position (accounting for the transform)
-    const rect = element.getBoundingClientRect();
-    const containerRect = element.parentElement.getBoundingClientRect();
-    
-    // Calculate offset from mouse position to element corner
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    
-    // If this is the first drag, remove the centering transform and set explicit position
-    if (element.style.transform.includes('translateX(-50%)')) {
-      element.style.transform = '';
-      element.style.left = rect.left - containerRect.left + 'px';
-      posX = rect.left - containerRect.left;
-      element.style.top = rect.top - containerRect.top + 'px';
-      posY = rect.top - containerRect.top;
-    }
-    
-    // Prevent default browser actions and text selection
-    e.preventDefault();
-    
-    // Add move and end listeners to document (not just the element)
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-  }
-  
-  function startDragTouch(e) {
-    // Skip if dragging is disabled or touching the dismiss button
-    if (!notificationDraggable || e.target.classList.contains('noflake-dismiss')) return;
-    
-    isDragging = true;
-    
-    // Get current position
-    const rect = element.getBoundingClientRect();
-    const containerRect = element.parentElement.getBoundingClientRect();
-    
-    // Calculate offset from touch position to element corner
-    offsetX = e.touches[0].clientX - rect.left;
-    offsetY = e.touches[0].clientY - rect.top;
-    
-    // If this is the first drag, remove the centering transform and set explicit position
-    if (element.style.transform.includes('translateX(-50%)')) {
-      element.style.transform = '';
-      element.style.left = rect.left - containerRect.left + 'px';
-      posX = rect.left - containerRect.left;
-      element.style.top = rect.top - containerRect.top + 'px';
-      posY = rect.top - containerRect.top;
-    }
-    
-    // Prevent default browser actions (like scrolling)
-    e.preventDefault();
-    
-    // Add move and end listeners to document
-    document.addEventListener('touchmove', dragTouch, { passive: false });
-    document.addEventListener('touchend', stopDragTouch);
-  }
-  
-  function drag(e) {
-    if (!isDragging) return;
-    
-    const containerRect = element.parentElement.getBoundingClientRect();
-    
-    // Calculate new position within container bounds
-    let newX = e.clientX - offsetX - containerRect.left;
-    let newY = e.clientY - offsetY - containerRect.top;
-    
-    // Apply bounds checking to keep notification within container
-    newX = Math.max(0, Math.min(newX, containerRect.width - element.offsetWidth));
-    newY = Math.max(0, Math.min(newY, containerRect.height - element.offsetHeight));
-    
-    // Update position
-    element.style.left = newX + 'px';
-    element.style.top = newY + 'px';
-    
-    // Store position without transform for future reference
-    posX = newX;
-    posY = newY;
-    
-    e.preventDefault();
-  }
-  
-  function dragTouch(e) {
-    if (!isDragging) return;
-    
-    const containerRect = element.parentElement.getBoundingClientRect();
-    
-    // Calculate new position
-    let newX = e.touches[0].clientX - offsetX - containerRect.left;
-    let newY = e.touches[0].clientY - offsetY - containerRect.top;
-    
-    // Apply bounds checking
-    newX = Math.max(0, Math.min(newX, containerRect.width - element.offsetWidth));
-    newY = Math.max(0, Math.min(newY, containerRect.height - element.offsetHeight));
-    
-    // Update position
-    element.style.left = newX + 'px';
-    element.style.top = newY + 'px';
-    
-    // Store position without transform
-    posX = newX;
-    posY = newY;
-    
-    e.preventDefault();
-  }
-  
-  function stopDrag() {
-    isDragging = false;
-    document.removeEventListener('mousemove', drag);
-    document.removeEventListener('mouseup', stopDrag);
-  }
-  
-  function stopDragTouch() {
-    isDragging = false;
-    document.removeEventListener('touchmove', dragTouch);
-    document.removeEventListener('touchend', stopDragTouch);
-  }
-}
 
 function showNotification(message, color = null) {
   if (!notificationElement || !enableNotifications) return;
@@ -649,7 +551,7 @@ function showNotification(message, color = null) {
   
   // Add dismiss button if not a pause countdown notification
   let dismissButton = '';
-  if (message !== pauseEnabledMessage && !message.includes('Pause in:') && !message.includes(pauseLockedMessage)) {
+  if (message !== pauseEnabledMessage && !message.includes('Pause in:') && !message.includes(pauseLockedMessage) && !bufferCountdownInterval) {
     dismissButton = '<span class="noflake-dismiss">×</span>';
     notificationElement.innerHTML = message + dismissButton;
     

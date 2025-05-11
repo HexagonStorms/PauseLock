@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "NoFlake - YouTube Commitment Buffer",
-  "version": "1.0",
-  "description": "Forces you to watch YouTube videos for a minimum time before pausing. Built by suggestion for the H3 Podcast by Dan & Ethan!",
+  "version": "0.1.0",
+  "description": "Forces you to watch YouTube videos for a minimum time before pausing. Inspired by and built for the H3 Podcast community based on a suggestion from Dan & Ethan!",
   "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html",

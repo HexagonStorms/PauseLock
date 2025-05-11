@@ -10,7 +10,6 @@ NoFlake is a Chrome extension that adds a customizable buffer time to YouTube vi
 - **Customizable Buffer Time**: Set how long (in seconds) a viewer must watch before being allowed to pause
 - **Visual Notifications**: On-screen messages show buffer status and remaining time
 - **Customizable Messages**: Personalize the notification text for when pause is locked and enabled
-- **Draggable Notifications**: Move notifications to your preferred position on the video
 - **Ad Handling**: Option to exclude ad time from buffer calculations
 - **Video Length Filtering**: Option to only apply the buffer to videos longer than 5 minutes
 - **Auto-Enable**: Automatically enable the buffer on all YouTube videos or control manually
@@ -54,7 +53,6 @@ If the refresh icon doesn't appear to apply your changes:
 3. Configure other options as desired:
    - Toggle notifications on/off
    - Customize notification messages for when pause is locked or enabled
-   - Enable/disable draggable notifications
    - Adjust notification color and opacity
    - Enable/disable auto-activation
    - Choose whether to count ad time in the buffer
@@ -88,9 +86,8 @@ MIT License - Feel free to modify and use this extension for your needs!
 ## Acknowledgments
 Special thanks to H3 Podcast and the suggestion from Dan & Ethan during H3TV #91 (at the 2:36:12 mark) that inspired this tool! The idea came from a live discussion about how viewers sometimes start videos but don't commit to watching them fully.
 
-## 
+## TODO List
 
-- TODO: allow draggable via X axis
-- TODO publish to Chrome Store
+- Publish to Chrome Store
 - Add screenshots
 - Add promo banner
