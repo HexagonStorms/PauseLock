@@ -54,6 +54,19 @@
       font-weight: bold;
       color: #555;
     }
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #666;
+    }
+    .footer a {
+      color: #d00;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
     .setting-group {
       margin-bottom: 15px;
       padding: 10px;
@@ -108,7 +121,7 @@
   <div class="header">
     <h1>NoFlake - YouTube Commitment Buffer</h1>
     <div class="subtitle">Inspired by the H3 Podcast</div>
-    <div class="version">v0.1.0</div>
+    <div class="version">v1.0.0</div>
   </div>
   
   <div class="setting-group">
@@ -171,17 +184,22 @@
     <details>
       <summary>Version History</summary>
       <div class="changelog">
-        <h3>v0.1.0</h3>
+        <h3>v1.0.0</h3>
         <ul>
-          <li>Initial release</li>
-          <li>Added customizable buffer time</li>
-          <li>Added notification system</li>
-          <li>Added customizable notification messages</li>
-          <li>Added ad handling options</li>
-          <li>Added video length filtering</li>
+          <li>Initial public release</li>
+          <li>Live countdown notifications</li>
+          <li>Customizable buffer time</li>
+          <li>Customizable notification messages</li>
+          <li>Ad handling options</li>
+          <li>Video length filtering</li>
         </ul>
       </div>
     </details>
+  </div>
+
+  <div class="footer">
+    <a href="https://github.com/josueplaza/noflake/issues" target="_blank">Report bugs</a> |
+    <a href="https://github.com/josueplaza/noflake" target="_blank">GitHub</a>
   </div>
 
   <script src="popup.js"></script>

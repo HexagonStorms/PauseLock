@@ -86,6 +86,18 @@ MIT License - Feel free to modify and use this extension for your needs!
 ## Acknowledgments
 Special thanks to H3 Podcast and the suggestion from Dan & Ethan during H3TV #91 (at the 2:36:12 mark) that inspired this tool! The idea came from a live discussion about how viewers sometimes start videos but don't commit to watching them fully.
 
+## Reporting Issues
+
+Found a bug or have a feature request? Please submit an issue on GitHub:
+
+1. Go to [https://github.com/josueplaza/noflake/issues](https://github.com/josueplaza/noflake/issues)
+2. Click "New Issue"
+3. Provide details about your bug or feature request:
+   - For bugs: describe what happened, what you expected, and steps to reproduce
+   - For feature requests: describe the feature and why it would be valuable
+   - Include your browser version and operating system
+4. Submit the issue
+
 ## TODO List
 
 - Publish to Chrome Store
