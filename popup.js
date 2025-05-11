@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     notificationDraggable: true,
     autoEnable: true,
     skipAds: false,
-    onlyOnLongVideos: false
+    onlyOnLongVideos: false,
+    pauseEnabledMessage: 'Pause enabled',
+    pauseLockedMessage: 'Pause locked'
   }, function(items) {
     document.getElementById('bufferTime').value = items.bufferTime;
     document.getElementById('enableNotifications').checked = items.enableNotifications;
@@ -21,6 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('autoEnable').checked = items.autoEnable;
     document.getElementById('skipAds').checked = items.skipAds;
     document.getElementById('onlyOnLongVideos').checked = items.onlyOnLongVideos;
+    document.getElementById('pauseEnabledMessage').value = items.pauseEnabledMessage;
+    document.getElementById('pauseLockedMessage').value = items.pauseLockedMessage;
   });
 
   // Update opacity value display when slider changes
@@ -39,6 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const autoEnable = document.getElementById('autoEnable').checked;
     const skipAds = document.getElementById('skipAds').checked;
     const onlyOnLongVideos = document.getElementById('onlyOnLongVideos').checked;
+    const pauseEnabledMessage = document.getElementById('pauseEnabledMessage').value || 'Pause enabled';
+    const pauseLockedMessage = document.getElementById('pauseLockedMessage').value || 'Pause locked';
     
     // Validate input
     if (isNaN(bufferTime) || bufferTime < 1 || bufferTime > 3600) {
@@ -56,7 +62,9 @@ document.addEventListener('DOMContentLoaded', function() {
       notificationOpacity: notificationOpacity,
       autoEnable: autoEnable,
       skipAds: skipAds,
-      onlyOnLongVideos: onlyOnLongVideos
+      onlyOnLongVideos: onlyOnLongVideos,
+      pauseEnabledMessage: pauseEnabledMessage,
+      pauseLockedMessage: pauseLockedMessage
     }, function() {
       showStatus('Settings saved!', '#4CAF50');
       
@@ -73,7 +81,9 @@ document.addEventListener('DOMContentLoaded', function() {
             notificationOpacity: notificationOpacity,
             autoEnable: autoEnable,
             skipAds: skipAds,
-            onlyOnLongVideos: onlyOnLongVideos
+            onlyOnLongVideos: onlyOnLongVideos,
+            pauseEnabledMessage: pauseEnabledMessage,
+            pauseLockedMessage: pauseLockedMessage
           }
         });
       });

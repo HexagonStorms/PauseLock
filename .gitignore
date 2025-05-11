@@ -4,3 +4,4 @@
 
 # Node.js dependencies
 node_modules/
+**/.claude/settings.local.json

@@ -8,6 +8,8 @@ let notificationOpacity = 75; // Default opacity (as a percentage)
 let autoEnable = true;
 let skipAds = false;
 let onlyOnLongVideos = false;
+let pauseEnabledMessage = 'Pause enabled'; // Default message when pause is allowed
+let pauseLockedMessage = 'Pause locked'; // Default message when pause is locked
 let playStartTime = 0;
 let bufferActive = false;
 let notificationElement = null;
@@ -40,7 +42,9 @@ chrome.storage.sync.get({
   notificationOpacity: 75,
   autoEnable: true,
   skipAds: false,
-  onlyOnLongVideos: false
+  onlyOnLongVideos: false,
+  pauseEnabledMessage: 'Pause enabled',
+  pauseLockedMessage: 'Pause locked'
 }, function(items) {
   bufferTime = items.bufferTime;
   enableNotifications = items.enableNotifications;
@@ -51,6 +55,8 @@ chrome.storage.sync.get({
   autoEnable = items.autoEnable;
   skipAds = items.skipAds;
   onlyOnLongVideos = items.onlyOnLongVideos;
+  pauseEnabledMessage = items.pauseEnabledMessage;
+  pauseLockedMessage = items.pauseLockedMessage;
   
   // Initialize after settings are loaded
   initialize();
@@ -62,7 +68,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     // Store previous buffer time for comparison
     const prevBufferTime = bufferTime;
     const prevDraggable = notificationDraggable;
-    
+
     // Update all settings
     bufferTime = request.settings.bufferTime;
     enableNotifications = request.settings.enableNotifications;
@@ -73,6 +79,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     autoEnable = request.settings.autoEnable;
     skipAds = request.settings.skipAds;
     onlyOnLongVideos = request.settings.onlyOnLongVideos;
+    pauseEnabledMessage = request.settings.pauseEnabledMessage;
+    pauseLockedMessage = request.settings.pauseLockedMessage;
     
     // Update notification style if it exists
     if (notificationElement) {
@@ -113,7 +121,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         stopCountdown();
         bufferActive = false;
         if (enableNotifications) {
-          showNotification('Buffer complete. You can now pause the video', 'rgba(76, 175, 80, 0.85)');
+          showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
         }
       }
       // Otherwise restart the countdown with the new time
@@ -232,10 +240,10 @@ function setupBufferCheck() {
         bufferActive = false;
         
         // Only show notification if not already showing completion message
-        if (enableNotifications && 
-            (!notificationElement || 
-             !notificationElement.textContent !== 'Pause enabled')) {
-          showNotification('Pause enabled', 'rgba(76, 175, 80, 0.85)');
+        if (enableNotifications &&
+            (!notificationElement ||
+             !notificationElement.textContent !== pauseEnabledMessage)) {
+          showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
         }
         
         // Stop countdown if it's running
@@ -301,7 +309,7 @@ function handleVideoPlay() {
     bufferActive = true;
     
     if (enableNotifications) {
-      showNotification(`Pause locked: ${bufferTime}s`);
+      showNotification(`${pauseLockedMessage}: ${bufferTime}s`);
     }
   }
 }
@@ -349,7 +357,7 @@ function handleVideoPause() {
     stopCountdown();
     
     if (enableNotifications) {
-      showNotification('Buffer complete. You can now pause the video', 'rgba(76, 175, 80, 0.85)');
+      showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
     }
   }
 }
@@ -387,7 +395,7 @@ function startCountdown(seconds) {
       // Buffer time reached during countdown, show success message
       stopCountdown();
       bufferActive = false;
-      showNotification('Pause enabled', 'rgba(76, 175, 80, 0.85)');
+      showNotification(pauseEnabledMessage, 'rgba(76, 175, 80, 0.85)');
     } else if (countdownSpan) {
       // Update just the span element with the new seconds value
       countdownSpan.textContent = seconds;
@@ -641,7 +649,7 @@ function showNotification(message, color = null) {
   
   // Add dismiss button if not a pause countdown notification
   let dismissButton = '';
-  if (message !== 'Pause enabled' && !message.includes('Pause in:') && !message.includes('Pause locked')) {
+  if (message !== pauseEnabledMessage && !message.includes('Pause in:') && !message.includes(pauseLockedMessage)) {
     dismissButton = '<span class="noflake-dismiss">×</span>';
     notificationElement.innerHTML = message + dismissButton;
     

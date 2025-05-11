@@ -9,6 +9,8 @@ NoFlake is a Chrome extension that adds a customizable buffer time to YouTube vi
 ## Features
 - **Customizable Buffer Time**: Set how long (in seconds) a viewer must watch before being allowed to pause
 - **Visual Notifications**: On-screen messages show buffer status and remaining time
+- **Customizable Messages**: Personalize the notification text for when pause is locked and enabled
+- **Draggable Notifications**: Move notifications to your preferred position on the video
 - **Ad Handling**: Option to exclude ad time from buffer calculations
 - **Video Length Filtering**: Option to only apply the buffer to videos longer than 5 minutes
 - **Auto-Enable**: Automatically enable the buffer on all YouTube videos or control manually
@@ -20,11 +22,40 @@ NoFlake is a Chrome extension that adds a customizable buffer time to YouTube vi
 4. Click "Load unpacked" and select the extension directory
 5. The NoFlake icon should appear in your Chrome toolbar
 
+## Developer Instructions
+
+### Testing Changes
+When making continuous edits to the extension during development:
+
+1. Make your code changes (editing HTML, JS, or CSS files)
+2. Go to `chrome://extensions/`
+3. Find the NoFlake extension and click the refresh icon (↻)
+4. No need to uninstall and reinstall - the refresh updates the extension with your changes
+
+If the refresh icon doesn't appear to apply your changes:
+- Check if you modified the manifest.json file (requires a full reload)
+- Make sure you saved all your edited files
+- Try opening a new YouTube page to see the changes
+
+### Debugging
+1. Go to `chrome://extensions/` and click on "background page" under NoFlake to access the DevTools for the background script
+2. On YouTube pages, right-click and select "Inspect" then navigate to the "Console" tab to see extension logs
+3. Add `console.log()` statements to debug specific code paths
+
+### Common Issues
+- **Changes not appearing**: Make sure to refresh the extension and reload YouTube pages
+- **Storage not updating**: Check the Chrome DevTools console for errors during storage operations
+- **Content script not running**: Verify the manifest.json content_scripts section includes the correct URL patterns
+- **Permissions issues**: Make sure all required permissions are properly listed in manifest.json
+
 ## Usage
 1. Click the NoFlake icon in your Chrome toolbar to open the settings popup
 2. Set your desired buffer time (in seconds)
 3. Configure other options as desired:
    - Toggle notifications on/off
+   - Customize notification messages for when pause is locked or enabled
+   - Enable/disable draggable notifications
+   - Adjust notification color and opacity
    - Enable/disable auto-activation
    - Choose whether to count ad time in the buffer
    - Set whether to only activate on longer videos

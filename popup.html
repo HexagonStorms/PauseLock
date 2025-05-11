@@ -109,8 +109,18 @@
       <label for="notificationOpacity">Opacity: <span id="opacityValue">75%</span></label>
       <input type="range" id="notificationOpacity" min="10" max="100" value="75" style="width: 100%; margin-top: 5px;">
     </div>
+
+    <div style="margin-top: 15px;">
+      <label for="pauseEnabledMessage">Pause Enabled Message:</label>
+      <input type="text" id="pauseEnabledMessage" value="Pause enabled" placeholder="Message when pause is allowed" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; margin-top: 5px;">
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label for="pauseLockedMessage">Pause Locked Message:</label>
+      <input type="text" id="pauseLockedMessage" value="Pause locked" placeholder="Message when pause is not allowed" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; margin-top: 5px;">
+    </div>
   </div>
-  
+
   <div class="setting-group">
     <label>Behavior Settings:</label>
     <div class="checkbox-container">
