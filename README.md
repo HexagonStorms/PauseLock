@@ -56,3 +56,10 @@ MIT License - Feel free to modify and use this extension for your needs!
 
 ## Acknowledgments
 Special thanks to H3 Podcast and the suggestion from Dan & Ethan during H3TV #91 (at the 2:36:12 mark) that inspired this tool! The idea came from a live discussion about how viewers sometimes start videos but don't commit to watching them fully.
+
+## 
+
+- TODO: allow draggable via X axis
+- TODO publish to Chrome Store
+- Add screenshots
+- Add promo banner
