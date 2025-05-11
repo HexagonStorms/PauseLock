@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "NoFlake - YouTube Commitment Buffer",
   "version": "1.0.0",
-  "description": "Forces you to watch YouTube videos for a minimum time before pausing. Inspired by and built for the H3 Podcast community based on a suggestion from Dan & Ethan!",
+  "description": "Prevents pausing YouTube videos until a set time passes. Makes you commit to watching videos. Inspired by the H3 Podcast!",
   "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html",
