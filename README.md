@@ -79,6 +79,12 @@ Some easy quality-of-life features that could be added to this extension:
 7. **Community Features**: Share your watching commitment with others
 8. **Focus Mode**: Block comments and other distractions during buffer time
 
+## Privacy
+
+PauseLock does not collect, store, or transmit any user data. All settings are stored locally in your browser, and no information is shared with any third parties.
+
+For complete details, see our [Privacy Policy](PRIVACY.md).
+
 ## License
 MIT License - Feel free to modify and use this extension for your needs!
 
