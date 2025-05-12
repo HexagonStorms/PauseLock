@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "NoFlake - YouTube Commitment Buffer",
+  "name": "PauseLock - YouTube Timer",
   "version": "1.0.0",
-  "description": "Prevents pausing YouTube videos until a set time passes. Makes you commit to watching videos. Inspired by the H3 Podcast!",
+  "description": "Sets a timer that prevents YouTube videos from being paused until the countdown finishes. Helps you commit to watching videos.",
   "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html",

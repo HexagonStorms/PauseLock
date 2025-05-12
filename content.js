@@ -192,7 +192,7 @@ function setupVideoListeners() {
       setupBufferCheck();
       
       if (enableNotifications && autoEnable) {
-        showNotification('NoFlake enabled');
+        showNotification('PauseLock enabled');
       }
     }
   }, 500);
