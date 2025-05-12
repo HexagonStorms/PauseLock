@@ -90,7 +90,7 @@ Special thanks to H3 Podcast and the suggestion from Dan & Ethan during H3TV #91
 
 Found a bug or have a feature request? Please submit an issue on GitHub:
 
-1. Go to [https://github.com/josueplaza/noflake/issues](https://github.com/josueplaza/noflake/issues)
+1. Go to [https://github.com/HexagonStorms/noflake/issues](https://github.com/HexagonStorms/noflake/issues)
 2. Click "New Issue"
 3. Provide details about your bug or feature request:
    - For bugs: describe what happened, what you expected, and steps to reproduce
